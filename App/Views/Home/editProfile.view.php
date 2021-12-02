@@ -27,19 +27,13 @@
                             <div class="col form-group">
                                 <label for="name">Meno</label>
                                 <input type="text" class="form-control" name="name" id="name"
-                                       value="<?= $user->getName() ?>">
+                                       value="<?= $user->getName() ?>" required>
                             </div>
                             <div class="col form-group">
                                 <label for="last_name">Priezvisko</label>
                                 <input type="text" class="form-control" name="last_name" id="last_name"
-                                       value="<?= $user->getLastName() ?>">
+                                       value="<?= $user->getLastName() ?>" required>
                             </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="email">E-mail</label>
-                            <input type="email" class="form-control" placeholder="" name="email" id="email"
-                                   value="<?= $user->getEmail() ?>">
                         </div>
 
                         <div class="row">
@@ -68,13 +62,13 @@
                         <div class="form-group">
                             <label for="cities">Mestá venčenia</label>
                             <input type="text" class="form-control" name="cities" id="cities" placeholder="mesto1, mesto2,.."
-                                   value="<?= $user->getCities() ?>">
+                                   value="<?= $user->getCities() ?>" required>
                             <div id="errorCities"></div>
                         </div>
                         <div class="form-row">
                             <label for="payment">Cena za venčenie</label>
                             <input type="number" class="form-control" name="payment" id="payment" max="3" min="0" placeholder="0-3"
-                                   value="<?= $user->getPayment() ?>">
+                                   value="<?= $user->getPayment() ?>" required>
                         </div>
 
                         <?php if ($data['error'] != null) { ?>

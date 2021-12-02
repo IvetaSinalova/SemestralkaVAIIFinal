@@ -71,7 +71,7 @@
                             <label>Mestá venčenia:</label>
                         </div>
                         <div class="col-md-6">
-                            <p><?= $data['cities'] ?></p>
+                            <p><?= $data['cities']?></p>
                         </div>
                     </div>
                     <div class="row">

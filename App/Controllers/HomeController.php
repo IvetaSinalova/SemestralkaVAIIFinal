@@ -143,7 +143,6 @@ class HomeController extends AControllerRedirect
 
         $user->setName($name);
         $user->setLastName($lastName);
-        $user->setEmail($email);
         $user->setCities($cities);
         $user->setPayment($payment);
         $user->setDaysAvailable($availableDays);
