@@ -61,10 +61,6 @@ body {
     color: #ded8d5;
 }
 
-.dark_bg h1{
-    color: #a16a58;
-}
-
 .curve_top{
     height: 250px;
     clip-path: ellipse(300% 100% at 287.5% 100%);
@@ -221,4 +217,34 @@ footer {
     border: 1px solid #a33a3a;
     padding: 5px;
     margin: 20px 0px 20px 0px;
+}
+
+.card{
+    margin-top: 20px;
+}
+
+.lost_dog{
+    max-height: 200px;
+}
+
+
+.walk_icon{
+    position: absolute;
+    right: 0;
+    top:0;
+}
+
+.img_forum_posts{
+    border-radius: 50%;
+    height: 60px;
+    width: 60px;
+    margin-bottom: 5px ;
+}
+
+.transparent{
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    color:#345370;
+    text-decoration-line: underline;
 }

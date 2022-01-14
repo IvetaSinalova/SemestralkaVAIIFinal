@@ -14,8 +14,7 @@ class User extends \App\Core\Model
         public ?string $password = null,
         public ?string $email = null,
         public ?string $profile_picture = null,
-        public ?string $registration_date= null,
-        public ?string $cities= null,
+        public ?string $city= null,
         public int $payment=0,
         public ?string $days_available=null
     )
@@ -41,17 +40,17 @@ class User extends \App\Core\Model
     /**
      * @return string|null
      */
-    public function getCities(): ?string
+    public function getCity(): ?string
     {
-        return $this->cities;
+        return $this->city;
     }
 
     /**
-     * @param string|null $cities
+     * @param string|null $city
      */
-    public function setCities(?string $cities): void
+    public function setCity(?string $city): void
     {
-        $this->cities = $cities;
+        $this->city = $city;
     }
 
     /**
@@ -68,22 +67,6 @@ class User extends \App\Core\Model
     public function setPayment(int $payment): void
     {
         $this->payment = $payment;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getRegistrationDate(): ?string
-    {
-        return $this->registration_date;
-    }
-
-    /**
-     * @param string|null $registration_date
-     */
-    public function setRegistrationDate(?string $registration_date): void
-    {
-        $this->registration_date = $registration_date;
     }
 
     /**
@@ -184,7 +167,7 @@ class User extends \App\Core\Model
 
     static public function setDbColumns()
     {
-        return ['id','name','last_name','bday','password','email','profile_picture','registration_date','cities','payment','days_available'];
+        return ['id','name','last_name','bday','password','email','profile_picture','city','payment','days_available'];
     }
 
     static public function setTableName()

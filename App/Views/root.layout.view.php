@@ -14,7 +14,6 @@
 
     <link rel="stylesheet" href="public/css.css">
 
-
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
             integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
             crossorigin="anonymous"></script>
@@ -40,16 +39,29 @@
                 <a class="nav-link" href="?c=home">Domov</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="?c=home&a=posts">Ponúkam</a>
+                <a class="nav-link" href="?c=home&a=users">Ponúkam</a>
             </li>
+            <?php if(\App\Auth::isLogged()){ ?>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" id="dropDownHladam" data-toggle="dropdown" aria-haspopup="true">Fórum</a>
+                <div class="dropdown-menu" aria-labelledby="dropDownHladam">
+                    <a class="dropdown-item" href="?c=home&a=questions">Zobraziť</a>
+                    <a class="dropdown-item" href="?c=home&a=addQuestionForm">Pridať</a>
+                </div>
+            </li>
+            <?php } else {?>
+            <li class="nav-item">
+                <a class="nav-link" href="?c=home&a=questions">Fórum</a>
+            </li>
+            <?php }?>
         </ul>
         <ul class="navbar-nav">
-            <?php if (\App\Auth::isLogged()) { ?>
+          <?php if (\App\Auth::isLogged()) { ?>
                 <li class="nav-item">
-                    <a class="nav-link" href="?c=auth&a=logout">Logout</a>
+                    <a class="nav-link" href="?c=auth&a=logout">Odhlásiť sa</a>
                 </li>
                 <li class="nav-item">
-                    <a type="submit" class="nav-link" href="?c=home&a=someonesProfile">Profil</a>
+                    <a type="submit" class="nav-link" href="?c=home&a=getProfile">Profil</a>
                 </li>
             <?php } else { ?>
                 <li class="nav-item">

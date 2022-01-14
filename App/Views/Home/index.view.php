@@ -1,3 +1,5 @@
+<?php /** @var Array $data */ ?>
+
 <div class="container-fluid welcome_page">
     <div class="row">
         <div class="welcome_img">
@@ -18,8 +20,16 @@
                 Alebo naopak chcete tieto služby ponúkať?
                 <strong>Tak neváhajte a pridajte sa k nám!</strong><br>
                 <a class="btn" href="?c=auth&a=registerForm" role="button">Registrovať sa</a>
+                <?php if($data['errorRegistration'] != null) {?>
+                    <div class="alert alert-danger alert-dismissible">
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                        <strong><?= $data['errorRegistration'] ?></strong>
+                    </div>
+                <?php } ?>
             </div>
+
         </div>
+
     </div>
     <div class="row curve_top dark_bg"></div>
     <div class="row part dark_bg justify-content-center" id="pravidla">
@@ -45,7 +55,7 @@
         </div>
         <div class="col-12 col-md-3">
             <img src="https://www.trainpetdog.com/wp-content/themes/mytheme/images/about-page-images/Old-English-Sheepdog-origin.png"
-                 alt="peso" class="dog_rules">
+                 alt="peso">
         </div>
     </div>
     <div class="row curve_bottom dark_bg"></div>

@@ -9,14 +9,14 @@ class Review extends \App\Core\Model
                                 public ?string $text=null,
                                 public ?string $date=null,
                                 public int $id=0,
-                                public int $rating=0)
+                                public float $rating=0)
     {
     }
 
     /**
      * @return int
      */
-    public function getRating(): int
+    public function getRating(): float
     {
         return $this->rating;
     }
@@ -24,7 +24,7 @@ class Review extends \App\Core\Model
     /**
      * @param int $rating
      */
-    public function setRating(int $rating): void
+    public function setRating(float $rating): void
     {
         $this->rating = $rating;
     }
@@ -119,5 +119,11 @@ class Review extends \App\Core\Model
     static public function setTableName()
     {
         return 'reviews';
+    }
+
+    public function getWriterInfo(): string
+    {
+        $user = User::getOne($this->writer_id);
+        return $user->getName() . " " . $user->getLastName() . " " . $this->date;
     }
 }
