@@ -12,11 +12,11 @@
             <?php if (\App\Auth::getId() == $data['question']->getIdAuthor()) { ?>
                     <div class="col-md-1">
                         <form method="post" action="?c=home&a=deleteQuestion">
-                            <input type="hidden" value="<?=$data['question']->getId() ?>" name="id_question" class="id_question">
+                            <input type="hidden" value="<?=$data['question']->getId() ?>" name="id_question">
                             <button class="transparent" type="submit"><i class="fas fa-trash-alt"></i></button>
                         </form>
                         <form method="post" action="?c=home&a=editQuestion">
-                            <input type="hidden" value="<?=$data['question']->getId() ?>" name="id_question" class="id_question">
+                            <input type="hidden" value="<?=$data['question']->getId() ?>" name="id_question">
                             <button class="transparent" type="submit"><i class="fas fa-edit"></i></button>
                         </form>
                     </div>
@@ -44,16 +44,17 @@
                 <div class="col-lg-12">
                     <div class="ibox-content forum-container">
                         <div class="forum-item active">
+                            <input type="hidden" name="question_id" id="question_id" value="<?=$data['question']->getId()?>">
                             <?php foreach($data['answers'] as $answer){?>
                                 <div class="row">
-                                    <div class="col-1 text-center">
+                                    <div class="col-md-1 col-12 text-center">
                                         <?php if (\App\Forum::getAuthorProfilePicture($answer->getAuthorId()) ) { ?>
                                             <img class="img_forum_posts" src="<?= \App\Config\Configuration::UPLOAD_DIR . \App\Forum::getAuthorProfilePicture($answer->getAuthorId()) ?>" alt="profile_picture_<?= \App\Forum::getAuthorName($answer->getAuthorId())  ?>">
                                         <?php } else { ?>
                                             <img class="img_forum_posts" src="<?= \App\Config\Configuration::DEFAULET_PROFILE_PICTURE ?>" alt="avatar">
                                         <?php } ?>
                                     </div>
-                                    <div class="col-10">
+                                    <div class="col-md-10 col-12">
                                         <h6>
                                             <?=\App\Forum::getAuthorName($answer->getAuthorId())?>
                                         </h6>
@@ -61,21 +62,25 @@
                                             <?=$answer->getText() ?>
                                         </p>
                                     </div>
-                                    <div class=" col-1 forum-info">
-                                <?=$answer->getLikes()?>
+                                    <div class=" col-md-1 col-12 forum-info">
+                                        <?=$answer->getNumOfLikes()?>
                                         <div>
+                                            <?php if(\App\Auth::isLogged()){?>
                                             <?php if(\App\Forum::alreadyLikedAnswer(\App\Auth::getId(),$answer->getId())!=-1){ ?>
-                                            <form method="post" action="?c=home&a=removeLike" id="removeLike">
-                                                <input type="hidden" value="<?=$answer->getId() ?>" name="answer_id" class="answer_id">
-                                                <input type="hidden" value="<?=$data['question']->getId()?>" name="question_id" class="question_id">
-                                                <button type="submit" class="transparent"><small><i class="fas fa-thumbs-down"></i></small></button>
-                                            </form>
+                                                <form method="post" action="?c=home&a=removeLike" id="removeLike">
+                                                    <input type="hidden" value="<?=$answer->getId() ?>" name="answer_id" class="answer_id">
+                                                    <input type="hidden" value="<?=$data['question']->getId()?>" name="question_id" class="question_id">
+                                                    <button type="submit" class="transparent"><small><i class="fas fa-thumbs-down"></i></small></button>
+                                                </form>
                                             <?php } else{?>
                                                 <form method="post" action="?c=home&a=addLike" id="addLike">
                                                     <input type="hidden" value="<?=$answer->getId() ?>" name="answer_id" class="answer_id">
                                                     <input type="hidden" value="<?=$data['question']->getId()?>" name="question_id" class="question_id">
                                                     <button type="submit" class="transparent"><small><i class="fas fa-thumbs-up"></i></small></button>
                                                 </form>
+                                            <?php }
+                                            }else{?>
+                                                <i class="fas fa-thumbs-up"></i>
                                             <?php }?>
                                         </div>
                                     </div>
@@ -83,11 +88,10 @@
                                 <hr>
                             <?php } ?>
                         </div>
-
-
                     </div>
 
                 </div>
+                <?php if(\App\Auth::isLogged()){?>
                 <form method="post" action="?c=home&a=addAnswer" id="answerForm">
                     <input type="hidden" name="question_id" id="question_id" value="<?=$data['question']->getId()?>">
                     <div class="row">
@@ -97,7 +101,7 @@
                             </div>
                             <?php if ($data['error'] != null) { ?>
                                 <br>
-                                <div class="alert alert-danger alert-dismissible">
+                                <div class="alert errorMessage alert-danger alert-dismissible">
                                     <a href="#" data-dismiss="alert" aria-label="close">&times;</a>
                                     <strong><?= $data['error'] ?></strong>
                                 </div>
@@ -105,10 +109,14 @@
                         </div>
 
                     </div>
-                    <button id="btn" type="submit" class="btn">Odpovedať</button>
+                    <br>
+                    <button id="btn-addQuestion" type="submit" class="btn-card">Odpovedať</button>
                     <div id="errorRating"></div>
                 </form>
+                <?php }?>
             </div>
         </div>
     </div>
 </div>
+
+

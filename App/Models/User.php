@@ -15,7 +15,7 @@ class User extends \App\Core\Model
         public ?string $email = null,
         public ?string $profile_picture = null,
         public ?string $city= null,
-        public int $payment=0,
+        public float $payment=0,
         public ?string $days_available=null
     )
     {
@@ -56,7 +56,7 @@ class User extends \App\Core\Model
     /**
      * @return int
      */
-    public function getPayment(): int
+    public function getPayment(): float
     {
         return $this->payment;
     }
@@ -64,7 +64,7 @@ class User extends \App\Core\Model
     /**
      * @param int $payment
      */
-    public function setPayment(int $payment): void
+    public function setPayment(float $payment): void
     {
         $this->payment = $payment;
     }

@@ -46,15 +46,14 @@ class AuthController extends AControllerRedirect
                 'profile_picture' => $this->request()->getValue('profile_picture'),
                 'city' => $this->request()->getValue('city'),
                 'payment' => $this->request()->getValue('payment'),
+                'days_available'=>$this->request()->getValue('days_available'),
                 'monday' => $this->request()->getValue('monday'),
-                'tuesday' => $this->request()->getValue('tuesday'),
+                'tuesday' =>$this->request()->getValue('tuesday'),
                 'wednesday' => $this->request()->getValue('wednesday'),
                 'thursday' => $this->request()->getValue('thursday'),
                 'friday' => $this->request()->getValue('friday'),
                 'saturday' => $this->request()->getValue('saturday'),
-                'sunday' => $this->request()->getValue('sunday'),
-            ]
-        );
+                'sunday' => $this->request()->getValue('sunday')]);
     }
 
 
@@ -86,14 +85,20 @@ class AuthController extends AControllerRedirect
         $friday = $this->request()->getValue('friday');
         $saturday = $this->request()->getValue('saturday');
         $sunday = $this->request()->getValue('sunday');
+        $old_profile_picture=$this->request()->getValue('old_profile_picture');
 
         if (isset($_FILES['profile_picture'])) {
             $profile_picture = $_FILES['profile_picture']['name'];
             if ($_FILES['profile_picture']['error'] == UPLOAD_ERR_OK) {
                 $img_name = date('Y-m-d-H-i-s_') . $profile_picture;
                 move_uploaded_file($_FILES['profile_picture']['tmp_name'], Configuration::UPLOAD_DIR . "$img_name");
+                if($old_profile_picture)
+                {
+                    $filename=Configuration::UPLOAD_DIR . $old_profile_picture;
+                    unlink( $filename);
+                }
             } else {
-                $img_name = $this->request()->getValue('old_profile_picture');
+                $img_name =$old_profile_picture;
             }
         }
 
@@ -114,18 +119,23 @@ class AuthController extends AControllerRedirect
             $errorExists = true;
         }
 
-        if (!Auth::correctName($name)) {
+        if (!Auth::correctLengthOfInput($name)) {
             $errorName = 'Nesprávne zadané meno';
             $errorExists = true;
         }
 
-        if (!Auth::correctName($last_name)) {
+        if (!Auth::correctLengthOfInput($last_name)) {
             $errorLastName = 'Nesprávne zadané priezvisko';
             $errorExists = true;
         }
 
-        if (Auth::getYearsSinceDate($bday) < 15 || $bday == null) {
+        $age = Auth::getYearsSinceDate($bday);
+        if ($age < 15 || $bday == null) {
             $errorBirthdate = 'Užívateľ musí byť starší ako 15 rokov';
+            $errorExists = true;
+        }else if($age > 150)
+        {
+            $errorBirthdate = 'Nesprávne zadaný dátum narodenia';
             $errorExists = true;
         }
 
@@ -197,27 +207,16 @@ class AuthController extends AControllerRedirect
 
             $user->save();
             Auth::login($email, $password);
-            $this->setProfileData($user);
+            if($user->getId()==0)
+            {
+                $this->redirect('home');
+            }
+            else{
+                $this->redirect('home','profile',['id'=>$user->getId()]);
+            }
+
         }
 
-
-
-    }
-
-
-    public function setProfileData($user)
-    {
-        $this->redirect('home', 'profile', [
-            'id' => $user->getId(),
-            'rating' => $user->getRating(),
-            'name' => $user->getName(),
-            'last_name' => $user->getLastName(),
-            'bday' => $user->getBday(),
-            'email' => $user->getEmail(),
-            'profile_picture' => $user->getProfilePicture(),
-            'city' => $user->getCity(),
-            'payment' => $user->getPayment(),
-            'days_available' => $user->getDaysAvailable()]);
     }
 
     public function checkLoginData($email, $password, $view, $errorPassword): bool
@@ -244,7 +243,7 @@ class AuthController extends AControllerRedirect
         if ($this->checkLoginData($email, $password, 'loginForm', 'errorPassword')) {
             $user = Auth::getUserByEmail($email);
             Auth::login($email, $password);
-            $this->setProfileData($user);
+            $this->redirect('home','profile',['id'=>$user->getId()]);
         }
 
 
@@ -269,11 +268,11 @@ class AuthController extends AControllerRedirect
             if (Auth::correctPassword($new_password)) {
                 $user = Auth::getUserByEmail($email);
                 $user->setPassword(password_hash($new_password, PASSWORD_DEFAULT));
+                $user->save();
                 Auth::login($email, $new_password);
-                $this->setProfileData($user);
-
+                $this->redirect('home','profile',['id'=>$user->getId()]);
             } else {
-                $this->redirect('auth', 'changePasswordForm', ['errorNewPassword' => 'Zadané heslo musí obsahovať aspoň 6 znakov']);
+                $this->redirect('auth', 'changePasswordForm', ['errorNewPassword' => 'Zadané heslo musí obsahovať aspoň 6 znakov','email'=>$email]);
             }
         }
 

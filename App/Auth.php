@@ -8,7 +8,25 @@ use DateTime;
 class Auth
 {
 
-    public static function checkCity($city){
+    public static function checkDate($day)
+    {
+        if (Auth::isLogged()) {
+            $user = User::getOne(Auth::getId());
+            $days = explode(" ", $user->getDaysAvailable());
+
+            foreach ($days as $d) {
+                if ($d == $day) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+
+    }
+
+    public static function checkCity($city)
+    {
         $cities = ['Bratislava', 'Košice', 'Prešov', 'Žilina', 'Banská Bystrica', 'Nitra', 'Trnava', 'Trenčín', 'Martin', 'Poprad', 'Prievidza',
             'Zvolen', 'Považská Bystrica', 'Michalovce', 'Nové Zámky', 'Spišská Nová Ves', 'Komárno', 'Humenné', 'Levice', 'Bardejov', 'Liptovský Mikuláš',
             'Lučenec', 'Piešťany', 'Ružomberok', 'Topoľčany', 'Trebišov', 'Čadca', 'Dubnica nad Váhom', 'Rimavská Sobota', 'Pezinok', 'Partizánske', 'Dunajská Streda',
@@ -23,40 +41,36 @@ class Auth
             'Hanušovce nad Topľou', 'Čierna nad Tisou', 'Tlmače', 'Spišsk Vlachy', 'Jelšava', 'Podolínec', 'Rajecké Teplice', 'Spišská Stará Ves', 'Modrý Kameň', 'Dudince'
         ];
         foreach ($cities as &$c) {
-           if($c==$city)
-           {
-               return true;
-           }
+            if ($c == $city) {
+                return true;
+            }
         }
 
         return false;
     }
 
 
-    public static function dateAlreadyHappend($stringDate,$stringTime) : bool
+    public static function dateAlreadyHappend($stringDate, $stringTime): bool
     {
-        $date = new DateTime($stringDate . " ". $stringTime);
+        $date = new DateTime($stringDate . " " . $stringTime);
         $now = new DateTime();
 
-        if($date < $now) {
+        if ($date < $now) {
             return true;
         }
 
         return false;
     }
 
-    public static function getYearsSinceDate($stringDate) : int{
-        $date=strtotime($stringDate);
-        $years= abs(date('Y',$date)-date('Y'));
-        if($years>0)
-        {
-            if(date('m')>date('m',$date))
-            {
+    public static function getYearsSinceDate($stringDate): int
+    {
+        $date = strtotime($stringDate);
+        $years = abs(date('Y', $date) - date('Y'));
+        if ($years > 0) {
+            if (date('m') > date('m', $date)) {
                 $years--;
-            }
-            else if(date('m') < date('m',$date))
-            {
-                if (date('d') < date('d',$date)) {
+            } else if (date('m') < date('m', $date)) {
+                if (date('d') < date('d', $date)) {
                     $years--;
                 }
             }
@@ -65,19 +79,18 @@ class Auth
     }
 
 
-
-    public static function correctName($name){
-        if(strlen($name)<=255)
-        {
+    public static function correctLengthOfInput($name)
+    {
+        if (strlen($name) <= 255) {
             return true;
         }
         return false;
     }
 
 
-    public static function correctPassword($password){
-        if(strlen($password)<6)
-        {
+    public static function correctPassword($password)
+    {
+        if (strlen($password) < 6) {
             return false;
         }
         return true;
@@ -85,23 +98,18 @@ class Auth
 
     public static function login($email, $password)
     {
-        foreach (User::getAll() as $existingUser)
-        {
-            if($email == $existingUser->getEmail() && password_verify($password,$existingUser->getPassword())){
-                $_SESSION['id']=$existingUser->getId();
-                return true;
-            }
-
+        $user = self::getUserByEmail($email);
+        if ($email == $user->getEmail() && password_verify($password, $user->getPassword())) {
+            $_SESSION['id'] = $user->getId();
+            return true;
         }
         return false;
     }
 
-    public static function getUserByEmail($email){
-        foreach (User::getAll() as $existingUser)
-        {
-            if($email == $existingUser->getEmail()){
-                return $existingUser;
-            }
+    public static function getUserByEmail($email)
+    {
+        foreach (User::getAll('email = ?', [$email]) as $existingUser) {
+            return $existingUser;
 
         }
         return NULL;

@@ -14,15 +14,29 @@
 
     <link rel="stylesheet" href="public/css.css">
 
+    <script src="public/javaScript.js"></script>
+
+    <!-- Dropdown menu -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
             integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
             crossorigin="anonymous"></script>
+    <!-- profil recenzie -->
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+
+
+    <!-- BALAST ?
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
             integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
             crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
+
+     <script defer src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+            -->
+
+
+
 
 
 </head>
@@ -31,10 +45,13 @@
 <nav class="navbar navbar-expand-lg navbar-dark fixed-top dark_bg">
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
         <ul class="navbar-nav me-auto">
-            <a class="navbar-brand" href="?c=home">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Paw_%28Animal_Rights_symbol%29.png/1200px-Paw_%28Animal_Rights_symbol%29.png"
-                     width="30" height="30" alt="paw">
-            </a>
+            <li>
+                <a class="navbar-brand" href="?c=home">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Paw_%28Animal_Rights_symbol%29.png/1200px-Paw_%28Animal_Rights_symbol%29.png"
+                         width="30" height="30" alt="paw">
+                </a>
+            </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="?c=home">Domov</a>
             </li>
@@ -42,7 +59,7 @@
                 <a class="nav-link" href="?c=home&a=users">Ponúkam</a>
             </li>
             <?php if(\App\Auth::isLogged()){ ?>
-            <li class="nav-item dropdown">
+            <li class="nav-item dropdown pointer">
                 <a class="nav-link dropdown-toggle" id="dropDownHladam" data-toggle="dropdown" aria-haspopup="true">Fórum</a>
                 <div class="dropdown-menu" aria-labelledby="dropDownHladam">
                     <a class="dropdown-item" href="?c=home&a=questions">Zobraziť</a>
@@ -50,7 +67,7 @@
                 </div>
             </li>
             <?php } else {?>
-            <li class="nav-item">
+            <li class="nav-item pointer">
                 <a class="nav-link" href="?c=home&a=questions">Fórum</a>
             </li>
             <?php }?>
@@ -61,7 +78,7 @@
                     <a class="nav-link" href="?c=auth&a=logout">Odhlásiť sa</a>
                 </li>
                 <li class="nav-item">
-                    <a type="submit" class="nav-link" href="?c=home&a=getProfile">Profil</a>
+                    <a  class="nav-link" href="?c=home&a=getProfile">Profil</a>
                 </li>
             <?php } else { ?>
                 <li class="nav-item">

@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Auth;
+use App\Config\Configuration;
 use App\Forum;
 use App\Models\Answer;
 use App\Models\Like;
@@ -24,45 +25,113 @@ class HomeController extends AControllerRedirect
             'errorRegistration'=>$this->request()->getValue('errorRegistration')]);
     }
 
+    public function findByCity(){
+        $city=$this->request()->getValue('searchByCity');
+        $users=User::getAll('city = ?',[$city]);
 
+        if(!Auth::checkCity($city))
+        {
+            return $this->json("errorWrongCity");
+        }
+        else if(empty($users))
+        {
+            return $this->json("errorNoResults");
+        }
+        return $this->json($users);
+    }
+
+
+    public function getUserPhoto(){
+        $question_id=$this->request()->getValue('question_id');
+        $quesion=Question::getOne($question_id);
+        $user=User::getOne($quesion->getIdAuthor());
+        if($user->getProfilePicture())
+        {
+            return \App\Config\Configuration::UPLOAD_DIR . $user->getProfilePicture();
+        }
+        else{
+            return Configuration::DEFAULET_PROFILE_PICTURE;
+        }
+    }
+
+    public function getUserName(){
+        $question_id=$this->request()->getValue('question_id');
+        $quesion=Question::getOne($question_id);
+        $user=User::getOne($quesion->getIdAuthor());
+        return $user->getName() . " " ;
+    }
+
+
+
+    public function getAllReviewsOfUserProfile(){
+        $user_id=$this->request()->getValue('user_id');
+        $reviewsOK=Review::getAll('receiver_id = ?',[$user_id]);
+        if(empty($reviewsOK))
+        {
+            return $this->json("noResults");
+        }
+        return $this->json($reviewsOK);
+    }
+
+    public function getReceiver(){
+        $review_id = $this->request()->getValue('review_id');
+        $review=Review::getOne($review_id);
+        $user_id=$review->getReceiverId();
+        return $this->json(User::getOne($user_id));
+    }
+
+    public function getWriter(){
+        $review_id = $this->request()->getValue('review_id');
+        $review=Review::getOne($review_id);
+        $user_id=$review->getWriterId();
+        return $this->json(User::getOne($user_id));
+    }
+
+    public function isAuthorLoggedIn(){
+        $review_id = $this->request()->getValue('review_id');
+        $review=Review::getOne($review_id);
+        if($review->getWriterId()==Auth::getId())
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public function deleteProfile(){
+        $user_id=$this->request()->getValue('user_id');
+
+        $likes=Like::getAll('user_id = ?',[$user_id]);
+        foreach ($likes as $like)
+        {
+            $like->delete();
+        }
+        $answers=Answer::getAll('author_id = ?',[$user_id]);
+        foreach ($answers as $answer)
+        {
+            $answer->delete();
+        }
+        $questions=Question::getAll('id_author = ?',[$user_id]);
+        foreach ($questions as $question)
+        {
+            $question->delete();
+        }
+        $reviews=Review::getAll('receiver_id = ? OR writer_id = ?',[$user_id,$user_id]);
+        foreach ($reviews as $review)
+        {
+            $review->delete();
+        }
+        $user=User::getOne($user_id);
+        $filename=Configuration::UPLOAD_DIR . $user->getProfilePicture();
+        unlink( $filename);
+
+        Auth::logout();
+        $user->delete();
+        $this->redirect('home');
+    }
 
     public function editProfileForm()
     {
         $user=User::getOne(Auth::getId());
-        $days= explode(" ", $user->getDaysAvailable());
-
-        for($i =0; $i<count($days);$i++)
-        {
-            if($days[$i]=="PON")
-            {
-                $monday="PON";
-            }
-            else if($days[$i]=="UT")
-            {
-                $tuesday="UT";
-            }
-            else if($days[$i]=="ST")
-            {
-                $wednesday="ST";
-            }
-            else if($days[$i]=="ŠT")
-            {
-                $thursday="ŠT";
-            }
-            else if($days[$i]=="PIA")
-            {
-                $friday="ST";
-            }
-            else if($days[$i]=="SOB")
-            {
-                $saturday="SOB";
-            }
-            else if($days[$i]=="NED")
-            {
-                $sunday="NED";
-            }
-        }
-
         $birthdate=$user->getBday();
         $stringToDate = strtotime($birthdate);
         $bday = date('Y-m-d', $stringToDate);
@@ -76,23 +145,23 @@ class HomeController extends AControllerRedirect
             'profile_picture' => $user->getProfilePicture(),
             'city' => $user->getCity(),
             'payment' => $user->getPayment(),
-            'monday' => $monday,
-            'tuesday' => $tuesday,
-            'wednesday' => $wednesday,
-            'thursday' => $thursday,
-            'friday' => $friday,
-            'saturday' => $saturday,
-            'sunday' => $sunday]);
+            'days_available' => $user->getDaysAvailable()]);
     }
-
 
     public function addQuestionForm(){
         $id = $this->request()->getValue('id');
         $question=Question::getOne($id);
         return $this->html([
+            'errorTitle'=>$this->request()->getValue('errorTitle'),
             'error' => $this->request()->getValue('error'),
+            'title'=>$this->request()->getValue('title'),
             'question'=>$question
         ]);
+    }
+
+
+    public function getAllUsers(){
+        return $this->json(User::getAll());
     }
 
     public function questions(){
@@ -105,7 +174,7 @@ class HomeController extends AControllerRedirect
     public function getQuestion(){
         $id=$this->request()->getValue('id');
         $question=Question::getOne($id);
-        $answers=Answer::getAll();
+        $answers=Answer::getAll('question_id = ?',[$question->getId()]);
         return $this->html([
             'question'=>$question,
             'answers'=>$answers,
@@ -113,32 +182,28 @@ class HomeController extends AControllerRedirect
         ]);
     }
 
+    public function getOnlineUser(){
+        return $this->json(User::getOne(Auth::getId()));
+    }
+
+
     public function addLike(){
         $id_answer=$this->request()->getValue('answer_id');
         $question_id = $this->request()->getValue('question_id');
-        $answer=Answer::getOne($id_answer);
-        $likes=$answer->getLikes();
-        $likes++;
-        $answer->setLikes($likes);
-        $answer->save();
         $like = new Like();
         $like->setUserId(Auth::getId());
         $like->setAnswerId($id_answer);
         $like->save();
         $this->redirect('home','getQuestion',['id'=>$question_id]);
+
     }
 
     public function removeLike(){
         $id_answer=$this->request()->getValue('answer_id');
         $question_id = $this->request()->getValue('question_id');
-        $answer=Answer::getOne($id_answer);
-        $likes=$answer->getLikes();
-        $likes--;
         $like_id=Forum::alreadyLikedAnswer(Auth::getId(),$id_answer);
         $like=Like::getOne($like_id);
         $like->delete();
-        $answer->setLikes($likes);
-        $answer->save();
         $this->redirect('home','getQuestion',['id'=>$question_id]);
     }
 
@@ -169,13 +234,24 @@ class HomeController extends AControllerRedirect
         $title = $this->request()->getValue('title');
         $text = $this->request()->getValue('text');
         $question_id=$this->request()->getValue('question_id');
+        $errorExists=false;
 
         if(!$title || !$text)
         {
+            $errorExists=true;
+            $error='Je potrebné vyplniť všetky polia';
+        }
+        if (!Auth::correctLengthOfInput($title)){
+            $errorExists=true;
+            $errorTitle='Nadpis je príliš dlhý';
+        }
+        if($errorExists)
+        {
             $this->redirect('home','addQuestionForm',
-                ['error'=>'Je potrebné vyplniť všetky polia',
-                'title'=>$title,
-                'text'=>$text]);
+                ['error'=>$error,
+                    'errorTitle'=>$errorTitle,
+                    'title'=>$title,
+                    'text'=>$text]);
         }
         else
         {
@@ -208,26 +284,29 @@ class HomeController extends AControllerRedirect
 
     public function profile()
     {
-        $reviews=Review::getAll();
+        $id = $this->request()->getValue('id');
+        $user=User::getOne($id);
+        $reviews=Review::getAll('receiver_id = ?',[$id]);
         return $this->html([
-            'review_id'=>$this->request()->getValue('review_id'),
             'reviews'=>$reviews,
-            'error'=>$this->request()->getValue('error'),
-            'id' => $this->request()->getValue('id'),
-            'rating'=>$this->request()->getValue('rating'),
-            'name' => $this->request()->getValue('name'),
-            'last_name' => $this->request()->getValue('last_name'),
-            'bday' => $this->request()->getValue('bday'),
-            'email' => $this->request()->getValue('email'),
-            'profile_picture' => $this->request()->getValue('profile_picture'),
-            'city' => $this->request()->getValue('city'),
-            'payment' => $this->request()->getValue('payment'),
-            'days_available' => $this->request()->getValue('days_available')]);
+            'user'=>$user]);
     }
 
     public function deleteQuestion(){
         $id_question = $this->request()->getValue('id_question');
-        $answers=Answer::getAll();
+        $answers=Answer::getAll('question_id = ?',[$id_question]);
+        $likes = Like::getAll();
+        foreach ($likes as $like)
+        {
+                foreach ($answers as $answer){
+                if($like->getAnswerId()==$answer->getId())
+                {
+                    $like->delete();
+                }
+            }
+
+        }
+
         foreach ($answers as $answer)
         {
             if($answer->getQuestionId()==$id_question)
@@ -248,27 +327,12 @@ class HomeController extends AControllerRedirect
 
     public function getProfile()
     {
-        $user = User::getOne($this->request()->getValue('id'));
-        if ($user == null) {
-            $user = User::getOne(Auth::getId());
+        $id = $this->request()->getValue('id');
+        if (!$id) {
+            $id = Auth::getId();
         }
-        $this->setProfileData($user);
+        $this->redirect('home','profile',['id'=>$id]);
 
-    }
-
-    public function setProfileData($user)
-    {
-        $this->redirect('home', 'profile', [
-            'id' => $user->getId(),
-            'rating'=>$user->getRating(),
-            'name' => $user->getName(),
-            'last_name' => $user->getLastName(),
-            'bday' => $user->getBday(),
-            'email' => $user->getEmail(),
-            'profile_picture' => $user->getProfilePicture(),
-            'city' => $user->getCity(),
-            'payment' => $user->getPayment(),
-            'days_available' => $user->getDaysAvailable()]);
     }
 
     public function deleteReview()
@@ -276,35 +340,40 @@ class HomeController extends AControllerRedirect
         $review_id = $this->request()->getValue('review_id');
         $review = Review::getOne($review_id);
         $receiver_id = $review->getReceiverId();
-
-        $user = User::getOne($receiver_id);
-
         $review->delete();
+        $reviews = Review::getAll('receiver_id = ?',[$receiver_id]);
+        if(!$reviews)
+        {
+            return $this->json('noResults');
 
-        $this->setProfileData($user);
+        }
+        return $this->json($reviews);
     }
 
 
     public function addReview()
     {
         $text = $this->request()->getValue('text');
-        $receiver = $this->request()->getValue('receiver_id');
-        $writer = $this->request()->getValue('writer_id');
         $rating = $this->request()->getValue('rating');
+        if(!$text || !$rating)
+        {
+            return $this->json('error');
+        }
+        $receiver_id = $this->request()->getValue('receiver_id');
+        $writer = $this->request()->getValue('writer_id');
+
 
         $review = new Review();
-        $review->setReceiverId($receiver);
+        $review->setReceiverId($receiver_id);
         $review->setWriterId($writer);
         $review->setText($text);
         $review->setDate(date('d.m.Y'));
         $review->setRating($rating);
-
         $review->save();
 
-        $user = User::getOne($receiver);
+        $reviews = Review::getAll('receiver_id = ?',[$receiver_id]);
 
-        $this->setProfileData($user);
-        $this->setProfileData($user);
+        return $this->json($reviews);
 
     }
 

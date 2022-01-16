@@ -1,81 +1,77 @@
-let registerForm = document.getElementById("registerForm");
-let editProfileForm = document.getElementById("editProfileForm");
-let lostDogForm = document.getElementById("addPostLostDog");
+function tooLongInput(e, word, errorElementText, errorMsg) {
 
-if (editProfileForm != null) {
-    window.onload = function () {
-        let citiesInput = document.getElementById('city').value;
-        checkCities(editProfileForm,citiesInput);
+    if (word.length > 255) {
+        e.preventDefault();
+        errorElementText.style.display = "block";
+        errorElementText.classList.add('errorMessage');
+        errorElementText.innerText = errorMsg;
+    } else {
+        errorElementText.style.display = "none";
+    }
 
-    };
 }
 
-if (registerForm != null) {
-    window.onload = function () {
-        checkForm();
-    };
+function checkDays(e) {
+    let errorElementDays = document.getElementById('errorDays')
+    if ($('input:checkbox').filter(':checked').length < 1) {
+
+        e.preventDefault();
+        errorElementDays.classList.add('errorMessage');
+        errorElementDays.style.display = "block";
+        errorElementDays.innerText = "Treba zadať aspoň 1 deň!";
+    } else {
+        errorElementDays.style.display = "none";
+    }
+
 }
 
+function checkBirthdate(e) {
 
-if (lostDogForm != null) {
-    window.onload = function () {
-        let citiesInput = document.getElementById('location').value;
-        checkCities(lostDogForm,citiesInput);
-        //checkForm();
+    let bday = document.getElementById('bday').value;
+    let today = new Date();
+    let birthdate = new Date(bday);
 
-    };
-}
+    let age = Math.abs(today.getFullYear() - birthdate.getFullYear());
 
-function checkDate() {
-    registerForm.addEventListener("submit", (e) => {
-        let bday = document.getElementById('bday').value;
-        let today = new Date();
-        let birthdate = new Date(bday);
-
-        let age = today.getFullYear() - birthdate.getFullYear();
-
-        if (birthdate.getMonth() < today.getMonth()) {
+    if (birthdate.getMonth() < today.getMonth()) {
+        age--;
+    } else if (birthdate.getMonth() == today.getMonth()) {
+        if (birthdate.getDay() < today.getDay()) {
             age--;
-        } else if (birthdate.getMonth() == today.getMonth()) {
-            if (birthdate.getDay() < today.getDay()) {
-                age--;
-            }
         }
+    }
 
-        if (age < 15) {
-            errorElement = document.getElementById('errorBirthdate')
-            e.preventDefault();
-            errorElement.classList.add('errorMessage');
-            errorElement.innerText = "Užívateľ musí byť starší ako 15 rokov!";
-        }
+    let errorElementBday = document.getElementById('errorBirthdate')
+    if (age < 15) {
+        e.preventDefault();
+        errorElementBday.classList.add('errorMessage');
+        errorElementBday.style.display = "block";
+        errorElementBday.innerText = "Užívateľ musí byť starší ako 15 rokov!";
+    } else if (age > 150) {
+        e.preventDefault();
+        errorElementBday.classList.add('errorMessage');
+        errorElementBday.style.display = "block";
+        errorElementBday.innerText = "Nesprávne zadaný dátum narodenia!";
+    } else {
+        errorElementBday.style.display = "none";
+    }
 
-    })
 
-
-    lostDogForm.addEventListener("submit", (e) => {
-        let lost = document.getElementById('lost_date').value;
-        let today = new Date();
-        let lostDate = new Date(lost);
-        alert("HALO");
-        if (today < lostDate) {
-            errorElement = document.getElementById('errorBirthdate')
-            e.preventDefault();
-            errorElement.classList.add('errorDate');
-            errorElement.innerText = "Zadaný dátum ešte nenastal!";
-        }
-
-    })
 }
 
-function checkCities(element, city) {
-    element.addEventListener("submit", (e) => {
-            if (!checkCity(city)) {
-                errorElementCity = document.getElementById('city');
-                e.preventDefault();
-                errorElementCity.classList.add('errorCity');
-                errorElementCity.innerText = "Zadané mesto neexistuje!";
-            }
-    });
+function checkCities(e) {
+
+    let city = document.getElementById('city').value;
+    let errorElementCity = document.getElementById('errorCity');
+    if (!checkCity(city)) {
+        e.preventDefault();
+        errorElementCity.classList.add('errorMessage');
+        errorElementCity.style.display = "block";
+        errorElementCity.innerText = "Zadané mesto neexistuje!";
+    } else {
+        errorElementCity.style.display = "none";
+    }
+
 }
 
 
@@ -106,25 +102,38 @@ function checkCity(city) {
 
 }
 
-function removeWhiteSpacesAtTheEndAndBeggining(string){
-    let index= 0;
-    toString(string);
-    while (string.charAt(index)==' ')
-    {
-        console.log("mazem whitespace na zaciatku");
-        index++;
-    }
-    let begginIndex=index;
 
-    index=string.length;
-    while (string.charAt(index)==' ')
-    {
-        console.log("mazem whitespace na konci");
-        index--;
+
+
+window.onload = function () {
+    let editProfileForm = document.getElementById("editUserDataForm");
+    if (editProfileForm != null) {
+        editProfileForm.addEventListener("submit", (e) => {
+            checkCities(e);
+            checkBirthdate(e);
+            checkDays(e);
+            let word = document.getElementById('name').value;
+            let errorElement = document.getElementById('errorName');
+            tooLongInput(e, word, errorElement, 'Zle zadané meno');
+            word = document.getElementById('last_name').value;
+            errorElement = document.getElementById('errorLastName');
+            tooLongInput(e, word, errorElement, 'Zle zadané priezisko');
+        })
+
     }
-    let endIndex=index;
-    let subString=string.substring(begginIndex,endIndex);
-    console.log(subString);
-    return subString;
-}
+
+};
+
+
+window.onload = function () {
+    let addQuestionForm = document.getElementById("addQuestion");
+    if (addQuestionForm != null) {
+        addQuestionForm.addEventListener("submit", (e) => {
+            let word = document.getElementById('title').value;
+            let errorElementCity = document.getElementById('errorTitle');
+            tooLongInput(e,word, errorElementCity, 'Zadaný nadspis je príliš dlhý!');
+        })
+    }
+
+};
 

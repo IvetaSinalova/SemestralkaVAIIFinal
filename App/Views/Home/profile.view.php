@@ -1,25 +1,21 @@
 <?php /** @var Array $data */ ?>
-<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-<script defer src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
-
+<br>
 <div class="container profile">
     <div class="row">
         <div class="col-md-4">
             <div class="profile-img">
                 <?php
-                if ($data['profile_picture'] != null) { ?>
-                    <img src="<?= \App\Config\Configuration::UPLOAD_DIR . $data['profile_picture'] ?>"
-                         alt="profile_picture_<?= $data['name'] . "_" . $data['last_name'] ?>"/>
+                if ($data['user']->getProfilePicture() != null) { ?>
+                    <img src="<?= \App\Config\Configuration::UPLOAD_DIR . $data['user']->getProfilePicture() ?>"
+                         alt="profile_picture_<?= $data['user']->getName() . "_" . $data['user']->getLastName() ?>"/>
                 <?php } else { ?>
                     <img src="<?= \App\Config\Configuration::DEFAULET_PROFILE_PICTURE ?>" alt="avatar"/>
                 <?php } ?>
-                <?php if (\App\Auth::getId() == $data['id']) { ?>
+                <?php if (\App\Auth::getId() == $data['user']->getId()) { ?>
                     <form method="post" action="?c=home&a=editProfileForm">
                         <input name="id" id="id" value="<?= \App\Auth::getId() ?>" type="hidden">
-                        <button class="btn" type="submit">Upraviť profil</button>
+                        <br>
+                        <button class="btn-card" type="submit">Upraviť profil</button>
                     </form>
                 <?php } ?>
             </div>
@@ -27,46 +23,34 @@
         <div class="col-md-6">
             <div class="profile-head">
                 <h5>
-                    <?= $data['name'] . " " . $data['last_name'] ?>
+                    <?= $data['user']->getName() . " " . $data['user']->getLastName() ?>
                 </h5>
-                <?php if (\App\Auth::isLogged() && \App\Auth::getId() == $data['id']) { ?>
-
-                    <form method="post" action="?c=auth&a=sendRequestForm">
-                        <button class="btn-review-edit" type="submit"><i class="fas fa-envelope"></i></button>
-                        <input name="receiver_id" id="receiver_id" value="<?= $data['id'] ?>" type="hidden">
+                <?php if (\App\Auth::getId() == $data['user']->getId()) { ?>
+                    <form method="post" action="?c=home&a=deleteProfile">
+                        <input type="hidden" value="<?= $data['user']->getId() ?>" name="user_id" class="user_id">
+                        <button class="transparent" type="submit"><i class="fas fa-trash-alt"></i></button>
                     </form>
-
                 <?php } ?>
-                <?php if ($data['error'] != null) { ?>
-                    <div>
-                        <div class="alert alert-danger alert-dismissible">
-                            <a href="#" data-dismiss="alert" aria-label="close">&times;</a>
-                            <strong><?= $data['error'] ?></strong>
-                        </div>
-                    </div>
-                <?php } ?>
-
-                <p class="profile-rating">Hodnotenie :
-                    <span><?= $data['rating'] == -1 ? '?' : $data['rating'] . '/5' ?></span></p>
+                <br>
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item">
                         <a class="nav-link active" id="home-tab" data-toggle="tab" href="#aboutMe" role="tab"
-                           aria-controls="home" aria-selected="true">O mne</a>
+                           aria-selected="true">O mne</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#reviews" role="tab"
-                           aria-controls="profile" aria-selected="false">Recenzie</a>
-                    </li>
+                        <input type="hidden" id="user_id" name="user_id" value="<?= $data['user']->getId() ?>">
+                        <a class="nav-link" id="rev-tab" data-toggle="tab" href="#reviews" role="tab"
+                           aria-selected="false">Recenzie</a></li>
                 </ul>
             </div>
             <div class="tab-content profile-tab" id="myTabContent">
-                <div class="tab-pane fade show active" id="aboutMe" role="tabpanel" aria-labelledby="home-tab">
+                <div class="tab-pane fade show active" id="aboutMe" role="tabpanel">
                     <div class="row">
                         <div class="col-md-6">
                             <label>Meno:</label>
                         </div>
                         <div class="col-md-6">
-                            <p><?= $data['name'] . " " . $data['last_name'] ?></p>
+                            <p><?= $data['user']->getName() . " " . $data['user']->getLastName() ?></p>
                         </div>
                     </div>
                     <div class="row">
@@ -74,7 +58,7 @@
                             <label>E-mai:</label>
                         </div>
                         <div class="col-md-6">
-                            <p><?= $data['email'] ?></p>
+                            <p><?= $data['user']->getEmail() ?></p>
                         </div>
                     </div>
                     <div class="row">
@@ -82,7 +66,7 @@
                             <label>Dátum narodenia:</label>
                         </div>
                         <div class="col-md-6">
-                            <p><?= $data['bday'] ?></p>
+                            <p><?= $data['user']->getBday() ?></p>
                         </div>
                     </div>
                     <div class="row">
@@ -90,7 +74,7 @@
                             <label>Mesto stráženia:</label>
                         </div>
                         <div class="col-md-6">
-                            <p><?= $data['city'] ?></p>
+                            <p><?= $data['user']->getCity() ?></p>
                         </div>
                     </div>
                     <div class="row">
@@ -98,7 +82,7 @@
                             <label>Dni stráženia:</label>
                         </div>
                         <div class="col-md-6">
-                            <p><?= $data['days_available'] ?></p>
+                            <p><?= $data['user']->getDaysAvailable() ?></p>
                         </div>
                     </div>
                     <div class="row">
@@ -106,18 +90,20 @@
                             <label>Cena za stráženie:</label>
                         </div>
                         <div class="col-md-6">
-                            <p><?= $data['payment'] != 0 ? $data['payment'] . "€/deň" : "Zadarmo" ?></p>
+                            <p><?= $data['user']->getPayment() != 0 ? $data['user']->getPayment() . "€/deň" : "Zadarmo" ?></p>
                         </div>
                     </div>
                 </div>
 
-                <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="profile-tab">
-                    <?php
-                    if ($data['rating'] == -1) { ?>
-                        <span>Užívateľ nemá zatiaľ žiadne recenzie.</span>
-                    <?php } else {
-                        foreach ($data['reviews'] as $review) {
-                            if ($review->getReceiverId() == $data['id']) { ?>
+                <div class="tab-pane fade" role="tabpanel" id="reviews" >
+                  <!--  <div id="reviews-tab"></div> -->
+
+                    <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="profile-tab">
+                        <?php
+                        if ($data['user']->getRating() == -1) { ?>
+                            <span>Užívateľ nemá zatiaľ žiadne recenzie.</span>
+                        <?php } else {
+                            foreach ($data['reviews'] as $review) {?>
                                 <div class="row">
                                     <div class="col-md-11">
                                         <p><?= $review->getRating() . '/5' ?></p>
@@ -125,10 +111,7 @@
                                     </div>
                                     <?php if (\App\Auth::getId() == $review->getWriterId()) { ?>
                                         <div class="col-md-1">
-                                            <form method="post" action="?c=home&a=deleteReview">
-                                                <input name="review_id" id="review_id" value="<?= $review->getId() ?>" type="hidden">
-                                                <button class="btn-review-edit" type="submit"><i class="fas fa-trash-alt"></i></button>
-                                            </form>
+                                            <button onclick="deleteReview(this.id)" class="btn-review-edit" id="<?= $review->getId() ?>" type="submit"><i class="fas fa-trash-alt"></i></button>
                                         </div>
                                     <?php } ?>
                                 </div>
@@ -137,37 +120,39 @@
                                         <p><?= $review->getWriterInfo() ?></p>
                                     </div>
                                 </div>
-                            <?php }
-                        }
-                    } ?>
-                    <?php if (\App\Auth::getId() != $data['id'] && \App\Auth::isLogged()) { ?>
-                        <form method="post" action="?c=home&a=addReview" id="review">
-                            <input type="hidden" id="receiver_id" name="receiver_id" value="<?= $data['id'] ?>">
-                            <input type="hidden" id="writer_id" name="writer_id" value="<?= \App\Auth::getId() ?>">
-                            <div class="row reviewSettings">
-                                <div role="textbox">
-                                    <div class="md-form">
-                                        <textarea id="text" name="text" class="md-textarea form-control" rows="3" col="12"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row reviewSettings">
-                                <div class="col-9">
-                                    <input type="number" name="rating" id="rating" placeholder="1-5" max="5" min="0" step="0.1" equired>
-                                </div>
-                            </div>
-                            <button id="btn-review" type="submit" class="btn">Pridať recenziu</button>
-                            <div id="errorRating"></div>
-                        </form>
-                    <?php } ?>
+                                <?php
+                            }
+                        } ?>
+                    </div>
 
+                    <?php if (\App\Auth::getId() != $data['user']->getId() && \App\Auth::isLogged()) { ?>
+                       <input type="hidden" id="receiver_id" name="receiver_id" value="<?= $data['user']->getId() ?>">
+                        <input type="hidden" id="writer_id" name="writer_id" value="<?= \App\Auth::getId() ?>">
+                        <div class="row reviewSettings">
+                            <div role="textbox">
+                                <div class="md-form">
+                                    <textarea id="text" name="text" class="md-textarea form-control" rows="3" cols="12" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row reviewSettings">
+                            <div class="col-9">
+                                <input type="number" name="rating" id="rating" placeholder="1-5" max="5" min="0"
+                                       step="0.1" required>
+                            </div>
+                        </div>
+                        <br>
+                        <button id="btn-review" type="submit" class="btn-card">Pridať recenziu</button>
+                        <div id="errorRating"></div>
+                    <?php } ?>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script src="public/javaScript.js"></script>
+<script src="public/reviews.js"></script>
+
 
 
 

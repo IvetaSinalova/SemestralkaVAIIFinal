@@ -8,12 +8,23 @@ class Answer extends \App\Core\Model
                                 public int $question_id=0,
                                 public int $author_id=0,
                                 public ?string $date=null,
-                                public ?string $text=null,
-                                public int $likes=0)
+                                public ?string $text=null)
     {
     }
 
 
+    public function getNumOfLikes(){
+        $likes=Like::getAll();
+        $counter=0;
+        foreach ($likes as $like)
+        {
+            if($like->getAnswerId()==$this->id)
+            {
+                $counter++;
+            }
+        }
+        return $counter;
+    }
 
     /**
      * @return int
@@ -95,27 +106,10 @@ class Answer extends \App\Core\Model
         $this->text = $text;
     }
 
-    /**
-     * @return int
-     */
-    public function getLikes(): int
-    {
-        return $this->likes;
-    }
-
-    /**
-     * @param int $likes
-     */
-    public function setLikes(int $likes): void
-    {
-        $this->likes = $likes;
-    }
-
-
 
     static public function setDbColumns()
     {
-        return ['id','question_id','author_id','date','text','likes'];
+        return ['id','question_id','author_id','date','text'];
     }
 
     static public function setTableName()
