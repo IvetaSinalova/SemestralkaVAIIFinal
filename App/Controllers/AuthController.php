@@ -31,6 +31,7 @@ class AuthController extends AControllerRedirect
     {
         return $this->html(
             [
+                'errorPayment'=>$this->request()->getValue('errorPayment'),
                 'errorDays' => $this->request()->getValue('errorDays'),
                 'errorName' => $this->request()->getValue('errorName'),
                 'errorLastName' => $this->request()->getValue('errorLastName'),
@@ -87,21 +88,6 @@ class AuthController extends AControllerRedirect
         $sunday = $this->request()->getValue('sunday');
         $old_profile_picture=$this->request()->getValue('old_profile_picture');
 
-        if (isset($_FILES['profile_picture'])) {
-            $profile_picture = $_FILES['profile_picture']['name'];
-            if ($_FILES['profile_picture']['error'] == UPLOAD_ERR_OK) {
-                $img_name = date('Y-m-d-H-i-s_') . $profile_picture;
-                move_uploaded_file($_FILES['profile_picture']['tmp_name'], Configuration::UPLOAD_DIR . "$img_name");
-                if($old_profile_picture)
-                {
-                    $filename=Configuration::UPLOAD_DIR . $old_profile_picture;
-                    unlink( $filename);
-                }
-            } else {
-                $img_name =$old_profile_picture;
-            }
-        }
-
         $errorExists = false;
 
         $days = [$monday, $tuesday, $wednesday, $thursday, $friday, $saturday, $sunday];
@@ -146,6 +132,12 @@ class AuthController extends AControllerRedirect
 
         }
 
+        if($payment < 0)
+        {
+            $errorPayment='Hodnota musí byť kladná';
+            $errorExists = true;
+        }
+
         if (!Auth::isLogged()) {
             if (Auth::getUserByEmail($email)) {
                 $errorEmail = 'Zadaný email sa už používa';
@@ -168,6 +160,7 @@ class AuthController extends AControllerRedirect
 
         if ($errorExists) {
             $this->redirect('auth', 'editUserDataForm', [
+                'errorPayment'=>$errorPayment,
                 'errorDays' => $errorDays,
                 'errorName' => $errorName,
                 'errorLastName' => $errorLastName,
@@ -180,7 +173,7 @@ class AuthController extends AControllerRedirect
                 'bday' => $bday,
                 'password' => $password,
                 'email' => $email,
-                'profile_picture' => $img_name,
+                'profile_picture' => $old_profile_picture,
                 'city' => $city,
                 'payment' => $payment,
                 'monday' => $monday,
@@ -202,7 +195,17 @@ class AuthController extends AControllerRedirect
             $user->setDaysAvailable($availableDays);
 
             if (isset($_FILES['profile_picture'])) {
-                $user->setProfilePicture($img_name);
+                $profile_picture = $_FILES['profile_picture']['name'];
+                if ($_FILES['profile_picture']['error'] == UPLOAD_ERR_OK) {
+                    $img_name = date('Y-m-d-H-i-s_') . $profile_picture;
+                    move_uploaded_file($_FILES['profile_picture']['tmp_name'], Configuration::UPLOAD_DIR . "$img_name");
+                    if($old_profile_picture)
+                    {
+                        $filename=Configuration::UPLOAD_DIR . $old_profile_picture;
+                        unlink( $filename);
+                    }
+                    $user->setProfilePicture($img_name);
+                }
             }
 
             $user->save();

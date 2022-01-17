@@ -36,7 +36,7 @@
 
                         <div class="col-11 form-group">
                             <label for="new_password" class="text-uppercase">Nové heslo</label>
-                            <input type="password" class="form-control" id="new_password" name="new_password" required>
+                            <input type="password" class="form-control" id="new_password" minlength="6" name="new_password" required>
                             <?php if ($data['errorNewPassword'] != null) { ?>
                                 <br>
 
@@ -58,3 +58,4 @@
 </div>
 
 
+<script src="public/javaScript.js"></script>

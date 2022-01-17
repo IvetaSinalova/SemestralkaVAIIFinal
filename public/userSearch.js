@@ -53,19 +53,8 @@ class User {
 
     filterByCity() {
         let city = document.getElementById('searchByCity').value;
-        if (!checkCity(city)) {
-            let posts = ""
-            let errorElementFindByCity = document.getElementById('errorFindByCity');
-            errorElementFindByCity.classList.add('msgSearch');
-            errorElementFindByCity.style.display = "block";
-            errorElementFindByCity.innerText = "Zadané mesto neexistuje";
-            document.getElementById("postsUsers").innerHTML = posts;
-        } else {
-            let action = "?a=findByCity&searchByCity=" + city;
-            this.getUsers(action);
-        }
-
-
+        let action = "?a=findByCity&searchByCity=" + city;
+        this.getUsers(action);
     }
 }
 

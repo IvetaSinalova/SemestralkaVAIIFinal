@@ -95,43 +95,46 @@
                     </div>
                 </div>
 
-                <div class="tab-pane fade" role="tabpanel" id="reviews" >
-                  <!--  <div id="reviews-tab"></div> -->
-
-                    <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="profile-tab">
+                <div class="tab-pane fade" role="tabpanel" id="reviews">
+                    <div id="reviewsBeforeAdd">
                         <?php
                         if ($data['user']->getRating() == -1) { ?>
-                            <span>Užívateľ nemá zatiaľ žiadne recenzie.</span>
+                            <span>Užívateľ nemá zatiaľ žiadne recenzie</span>
                         <?php } else {
-                            foreach ($data['reviews'] as $review) {?>
-                                <div class="row">
+                            foreach ($data['reviews'] as $review) { ?>
+                                <div class="row" id="<?= $review->getId() ?>">
                                     <div class="col-md-11">
                                         <p><?= $review->getRating() . '/5' ?></p>
                                         <h6><?= $review->getText() ?></h6>
                                     </div>
                                     <?php if (\App\Auth::getId() == $review->getWriterId()) { ?>
                                         <div class="col-md-1">
-                                            <button onclick="deleteReview(this.id)" class="btn-review-edit" id="<?= $review->getId() ?>" type="submit"><i class="fas fa-trash-alt"></i></button>
+                                            <button onclick="deleteReview(<?= $review->getId() ?>)"
+                                                    class="btn-review-edit transparent" type="submit"><i
+                                                        class="fas fa-trash-alt"></i></button>
                                         </div>
                                     <?php } ?>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <p><?= $review->getWriterInfo() ?></p>
+
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <p><?= $review->getWriterInfo() ?></p>
+                                        </div>
                                     </div>
                                 </div>
                                 <?php
                             }
                         } ?>
                     </div>
+                    <div id="reviews-tab"></div>
 
                     <?php if (\App\Auth::getId() != $data['user']->getId() && \App\Auth::isLogged()) { ?>
-                       <input type="hidden" id="receiver_id" name="receiver_id" value="<?= $data['user']->getId() ?>">
+                        <input type="hidden" id="receiver_id" name="receiver_id" value="<?= $data['user']->getId() ?>">
                         <input type="hidden" id="writer_id" name="writer_id" value="<?= \App\Auth::getId() ?>">
                         <div class="row reviewSettings">
                             <div role="textbox">
                                 <div class="md-form">
-                                    <textarea id="text" name="text" class="md-textarea form-control" rows="3" cols="12" required></textarea>
+                                    <textarea id="text" name="text" class="md-textarea form-control" rows="3" cols="12"
+                                              required></textarea>
                                 </div>
                             </div>
                         </div>
@@ -142,7 +145,7 @@
                             </div>
                         </div>
                         <br>
-                        <button id="btn-review" type="submit" class="btn-card">Pridať recenziu</button>
+                        <button id="btn-review" class="btn-card">Pridať recenziu</button>
                         <div id="errorRating"></div>
                     <?php } ?>
                 </div>
@@ -151,8 +154,7 @@
     </div>
 </div>
 
+
 <script src="public/reviews.js"></script>
-
-
 
 

@@ -40,29 +40,6 @@ class HomeController extends AControllerRedirect
         return $this->json($users);
     }
 
-
-    public function getUserPhoto(){
-        $question_id=$this->request()->getValue('question_id');
-        $quesion=Question::getOne($question_id);
-        $user=User::getOne($quesion->getIdAuthor());
-        if($user->getProfilePicture())
-        {
-            return \App\Config\Configuration::UPLOAD_DIR . $user->getProfilePicture();
-        }
-        else{
-            return Configuration::DEFAULET_PROFILE_PICTURE;
-        }
-    }
-
-    public function getUserName(){
-        $question_id=$this->request()->getValue('question_id');
-        $quesion=Question::getOne($question_id);
-        $user=User::getOne($quesion->getIdAuthor());
-        return $user->getName() . " " ;
-    }
-
-
-
     public function getAllReviewsOfUserProfile(){
         $user_id=$this->request()->getValue('user_id');
         $reviewsOK=Review::getAll('receiver_id = ?',[$user_id]);
@@ -73,13 +50,6 @@ class HomeController extends AControllerRedirect
         return $this->json($reviewsOK);
     }
 
-    public function getReceiver(){
-        $review_id = $this->request()->getValue('review_id');
-        $review=Review::getOne($review_id);
-        $user_id=$review->getReceiverId();
-        return $this->json(User::getOne($user_id));
-    }
-
     public function getWriter(){
         $review_id = $this->request()->getValue('review_id');
         $review=Review::getOne($review_id);
@@ -87,15 +57,6 @@ class HomeController extends AControllerRedirect
         return $this->json(User::getOne($user_id));
     }
 
-    public function isAuthorLoggedIn(){
-        $review_id = $this->request()->getValue('review_id');
-        $review=Review::getOne($review_id);
-        if($review->getWriterId()==Auth::getId())
-        {
-            return true;
-        }
-        return false;
-    }
 
     public function deleteProfile(){
         $user_id=$this->request()->getValue('user_id');
@@ -182,6 +143,11 @@ class HomeController extends AControllerRedirect
         ]);
     }
 
+    public function getQuestionForm(){
+        $id=$this->request()->getValue('id');
+        $this->redirect('home','getQuestion',['id'=>$id]);
+    }
+
     public function getOnlineUser(){
         return $this->json(User::getOne(Auth::getId()));
     }
@@ -194,7 +160,7 @@ class HomeController extends AControllerRedirect
         $like->setUserId(Auth::getId());
         $like->setAnswerId($id_answer);
         $like->save();
-        $this->redirect('home','getQuestion',['id'=>$question_id]);
+        $this->redirect('home','getQuestionForm',['id'=>$question_id]);
 
     }
 
@@ -204,7 +170,7 @@ class HomeController extends AControllerRedirect
         $like_id=Forum::alreadyLikedAnswer(Auth::getId(),$id_answer);
         $like=Like::getOne($like_id);
         $like->delete();
-        $this->redirect('home','getQuestion',['id'=>$question_id]);
+        $this->redirect('home','getQuestionForm',['id'=>$question_id]);
     }
 
     public function addAnswer(){
@@ -215,7 +181,7 @@ class HomeController extends AControllerRedirect
 
         if(!$text)
         {
-            $this->redirect('home','getQuestion',['error'=>'Zadajte text','id'=>$question_id]);
+            $this->redirect('home','getQuestionForm',['error'=>'Zadajte text','id'=>$question_id]);
         }
         else
         {
@@ -225,7 +191,7 @@ class HomeController extends AControllerRedirect
             $answer->setDate($date);
             $answer->setText($text);
             $answer->save();
-            $this->redirect('home','getQuestion',['id'=>$question_id]);
+            $this->redirect('home','getQuestionForm',['id'=>$question_id]);
         }
 
     }
@@ -342,7 +308,7 @@ class HomeController extends AControllerRedirect
         $receiver_id = $review->getReceiverId();
         $review->delete();
         $reviews = Review::getAll('receiver_id = ?',[$receiver_id]);
-        if(!$reviews)
+        if(empty($reviews))
         {
             return $this->json('noResults');
 

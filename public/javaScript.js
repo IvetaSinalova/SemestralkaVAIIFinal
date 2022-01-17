@@ -103,37 +103,48 @@ function checkCity(city) {
 }
 
 
+let editProfileForm = document.getElementById("editUserDataForm");
+if (editProfileForm != null) {
+    editProfileForm.addEventListener("submit", (e) => {
+        checkCities(e);
+        checkBirthdate(e);
+        checkDays(e);
+        let word = document.getElementById('name').value;
+        let errorElement = document.getElementById('errorName');
+        tooLongInput(e, word, errorElement, 'Zle zadané meno');
+        word = document.getElementById('last_name').value;
+        errorElement = document.getElementById('errorLastName');
+        tooLongInput(e, word, errorElement, 'Zle zadané priezisko');
+    })
+
+}
 
 
-window.onload = function () {
-    let editProfileForm = document.getElementById("editUserDataForm");
-    if (editProfileForm != null) {
-        editProfileForm.addEventListener("submit", (e) => {
-            checkCities(e);
-            checkBirthdate(e);
-            checkDays(e);
-            let word = document.getElementById('name').value;
-            let errorElement = document.getElementById('errorName');
-            tooLongInput(e, word, errorElement, 'Zle zadané meno');
-            word = document.getElementById('last_name').value;
-            errorElement = document.getElementById('errorLastName');
-            tooLongInput(e, word, errorElement, 'Zle zadané priezisko');
-        })
+let addQuestionForm = document.getElementById("addQuestion");
+if (addQuestionForm != null) {
+    addQuestionForm.addEventListener("submit", (e) => {
+        let word = document.getElementById('title').value;
+        let errorElementCity = document.getElementById('errorTitle');
+        tooLongInput(e, word, errorElementCity, 'Zadaný nadspis je príliš dlhý!');
+    })
+}
 
+
+let btnSearchByCity = document.getElementById('btn-send');
+if (btnSearchByCity) {
+    btnSearchByCity.onclick = () => {
+        let city = document.getElementById('searchByCity').value;
+        if (!checkCity(city)) {
+            let posts = ""
+            let errorElementFindByCity = document.getElementById('errorFindByCity');
+            errorElementFindByCity.classList.add('msgSearch');
+            errorElementFindByCity.style.display = "block";
+            errorElementFindByCity.innerText = "Zadané mesto neexistuje";
+            document.getElementById("postsUsers").innerHTML = posts;
+        }
     }
+}
 
-};
 
 
-window.onload = function () {
-    let addQuestionForm = document.getElementById("addQuestion");
-    if (addQuestionForm != null) {
-        addQuestionForm.addEventListener("submit", (e) => {
-            let word = document.getElementById('title').value;
-            let errorElementCity = document.getElementById('errorTitle');
-            tooLongInput(e,word, errorElementCity, 'Zadaný nadspis je príliš dlhý!');
-        })
-    }
-
-};
 
